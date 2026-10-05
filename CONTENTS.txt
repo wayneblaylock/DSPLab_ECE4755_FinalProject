@@ -1,0 +1,9 @@
+ECE 4755 Final Project — organized files
+Board excerpts: speech samples 43968:44223, impulse samples 55680:55935.
+Q6–Q8 C code is the Part 6 version. Q9/Q10 scripts are the copies that produced the saved figures.
+
+signals/   speech.wav, impulse.wav, echo_speech.wav
+code/      one source file per question, plus my_dft.m, my_idft.m, segmented_dft_idft.m, dsplab55.gel
+data/      C-run sample, DFT, and IDFT text files for speech (Q2/Q3) and impulse (Q5)
+figures/   MATLAB figures, numbered to match the original Fig01–Fig24
+scope/     DSPLab oscilloscope photos for Q6 (speech and impulse), Q7, and Q8

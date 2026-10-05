@@ -1,0 +1,149 @@
+
+/* The Startup() function is executed when the GEL file is loaded. */
+
+StartUp()
+{
+}
+
+OnTargetConnect()
+{
+	C5509A_Init();
+}
+
+
+menuitem "C5509A_Configuration";
+hotmenu CPU_Reset()
+{
+	GEL_Reset();
+
+	GEL_TextOut("CPU Reset Complete.\n");
+}
+
+
+/* Memory map based on MP/MC value=1    */
+
+hotmenu C5509A_Init()
+{
+	GEL_Reset();
+	TMCR_Reset(); 
+	DSPro_5509_Init();
+	GEL_MapOn();
+	GEL_MapReset();
+	
+	/* Program Space */
+	GEL_MapAdd(0x0000C0,0,0x00FF40,1,1);	/* DARAM */
+	GEL_MapAdd(0x010000,0,0x030000,1,1);	/* SARAM */
+	GEL_MapAdd(0x040000,0,0x3C0000,1,1);	/* External CE0 */
+	GEL_MapAdd(0x400000,0,0x400000,1,1);	/* External CE1 */
+	GEL_MapAdd(0x800000,0,0x400000,1,1);	/* External CE2 */
+	/* For MP/MC=1  */
+	GEL_MapAdd(0xC00000,0,0x400000,1,1);	/* External CE3 */
+
+
+	/* Data Space */
+	GEL_MapAdd(0x000000,1,0x000050,1,1);	/* MMRs */
+	GEL_MapAdd(0x000060,1,0x007FA0,1,1);	/* DARAM */
+	GEL_MapAdd(0x008000,1,0x018000,1,1);	/* SARAM */
+	GEL_MapAdd(0x020000,1,0x1E0000,1,1);	/* External CE0 */
+	GEL_MapAdd(0x200000,1,0x200000,1,1);	/* External CE1 */
+	GEL_MapAdd(0x400000,1,0x200000,1,1);	/* External CE2 */
+	/* For MP/MC=1 */
+	GEL_MapAdd(0x600000,1,0x200000,1,1);	/* External CE3 */
+	
+	/* IO Space */
+	GEL_MapAdd(0x0000,2,0x0400,1,1);	/* RHEA 1KW */
+	GEL_MapAdd(0x0400,2,0x0300,1,1);	/* EMULATION */
+	GEL_MapAdd(0x07FE,2,0x0002,1,1);	/* TMCR */
+	GEL_MapAdd(0x0800,2,0x0400,1,1);	/* EMIF 1KW */
+	GEL_MapAdd(0x0C00,2,0x0400,1,1);	/* DMA 1KW */
+	GEL_MapAdd(0x1000,2,0x0400,1,1);	/* TIMER#0 1KW */
+	GEL_MapAdd(0x1400,2,0x0400,1,1);	/* ICACHE 1KW */
+	GEL_MapAdd(0x1C00,2,0x0400,1,1);	/* CLKGEN 1KW */
+	GEL_MapAdd(0x2000,2,0x0400,1,1);	/* TRACE FIFO 1KW */
+	GEL_MapAdd(0x2400,2,0x0400,1,1);	/* TIMER#1 1KW */
+	GEL_MapAdd(0x2800,2,0x0400,1,1);	/* SERIAL PORT#0 1KW */
+	GEL_MapAdd(0x2C00,2,0x0400,1,1);	/* SERIAL PORT#1 1KW */
+	GEL_MapAdd(0x3000,2,0x0400,1,1);	/* SERIAL PORT#2 1KW */
+	GEL_MapAdd(0x3400,2,0x0400,1,1);	/* GPIO 1KW */
+	GEL_MapAdd(0x3800,2,0x0400,1,1);	/* ID 1KW */
+	GEL_MapAdd(0x5800,2,0x2800,1,1);	/* USB Regs and Buffer */	
+
+	GEL_TextOut("DSPro 5509 DSK Init Complete.\n");
+}
+
+/* Initialize Test Mode Control Registers(TMCR) */ 
+                                      
+/* This register selects modes for factory test */
+                                       
+/* and may be corrupted when device is powered  */
+                                       
+/* up with the emulator attached.  This 	*/
+                                              
+/* function restores the the registers to their */
+                                       
+/* default values.  There is not impact to 	*/
+                                           
+/* system functionality from these writes.	*/
+
+TMCR_Reset() 
+
+{ 
+                         
+	#define TMCR_MGS3	0x07FE 
+
+	#define TMCR_MM		0x07FF 
+
+
+                                  
+	*(short *)TMCR_MGS3@IO = 0x0510; 
+
+	*(short *)TMCR_MM@IO    = 0x0000; 
+
+} 
+
+DSPro_5509_Init()
+{
+#define EBSR_ADD 	 	0x6C00 
+#define EGCR_ADD 		0x0800 
+#define EMI_RST_ADD		0X0801
+#define EMIBE_ADD		0x0802
+#define CE01_ADD		0X0803
+#define CE02_ADD		0X0804
+#define CE03_ADD		0X0805
+#define CE11_ADD		0X0806
+#define CE12_ADD		0X0807
+#define CE13_ADD		0X0808
+#define CE21_ADD		0X0809
+#define CE22_ADD		0X080A
+#define CE23_ADD		0X080B
+#define CE31_ADD		0X080C
+#define CE32_ADD		0X080D
+#define CE33_ADD		0X080E
+
+#define PLL_ADD 		0x1C00
+	*(short *) PLL_ADD@IO = 0x2810;
+
+	*(short *) EBSR_ADD@IO = 0x0201;
+	*(short *) EGCR_ADD@IO = 0x022F;
+	*(short *) EMI_RST_ADD@IO = 0x0000;
+	*(short *) EMIBE_ADD@IO = 0x0000;
+	*(short *) CE01_ADD@IO	= 0x3fff;
+	*(short *) CE02_ADD@IO = 0x5fff;
+	*(short *) CE03_ADD@IO = 0x0000;
+	*(short *) CE11_ADD@IO	= 0x1038;
+	*(short *) CE12_ADD@IO	= 0x0038;
+	*(short *) CE13_ADD@IO	= 0x0064;
+	*(short *) CE21_ADD@IO	= 0x1050;
+	*(short *) CE22_ADD@IO	= 0x0050;
+	*(short *) CE23_ADD@IO	= 0x0064;
+	*(short *) CE31_ADD@IO	= 0x1050;
+	*(short *) CE32_ADD@IO	= 0x1151;
+	*(short *) CE33_ADD@IO	= 0x0064;
+ 	*(short *) 0x80f@IO =  0x2911; 
+ 	*(short *) 0x810@IO =  0x0578;
+ 	*(short *) 0x812@IO =  0x0000;
+ 	*(short *) 0x813@IO =  0x0135;
+ 	*(short *) 0x814@IO =  0x0000;
+
+
+}
